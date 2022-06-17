@@ -17,7 +17,7 @@ public class ClienteServiceImpl implements IClienteService{
     @Override
     @Transactional(readOnly = true)
     public List<Cliente> findAll() {
-        return clienteDAO.findAll();
+        return (List<Cliente>) clienteDAO.findAll();
     }
 
     @Override
@@ -29,12 +29,12 @@ public class ClienteServiceImpl implements IClienteService{
     @Override
     @Transactional(readOnly = true)
     public Cliente findOne(Long id) {
-        return clienteDAO.findOne(id);
+        return clienteDAO.findById(id).orElse(null);
     }
 
     @Override
     @Transactional
     public void delete(Long id) {
-        clienteDAO.delete(id);
+        clienteDAO.deleteById(id);
     }
 }
