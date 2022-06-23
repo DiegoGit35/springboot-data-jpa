@@ -1,40 +1,45 @@
 package com.aprendiendo.springboot.app.model.service;
 
+import java.util.List;
 
-import com.aprendiendo.springboot.app.model.dao.IClienteDAO;
-import com.aprendiendo.springboot.app.model.entity.Cliente;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
+import com.aprendiendo.springboot.app.model.dao.IClienteDAO;
+import com.aprendiendo.springboot.app.model.entity.Cliente;
 
 @Service
-public class ClienteServiceImpl implements IClienteService{
+public class ClienteServiceImpl implements IClienteService {
 
     @Autowired
-    private IClienteDAO clienteDAO;
+    private IClienteDAO clienteDao;
+
     @Override
     @Transactional(readOnly = true)
     public List<Cliente> findAll() {
-        return (List<Cliente>) clienteDAO.findAll();
+        // TODO Auto-generated method stub
+        return (List<Cliente>) clienteDao.findAll();
     }
 
     @Override
     @Transactional
     public void save(Cliente cliente) {
-        clienteDAO.save(cliente);
+        clienteDao.save(cliente);
+
     }
 
     @Override
     @Transactional(readOnly = true)
     public Cliente findOne(Long id) {
-        return clienteDAO.findById(id).orElse(null);
+        // TODO Auto-generated method stub
+        return clienteDao.findById(id).orElse(null);
     }
 
     @Override
     @Transactional
     public void delete(Long id) {
-        clienteDAO.deleteById(id);
+        clienteDao.deleteById(id);
+
     }
 }
