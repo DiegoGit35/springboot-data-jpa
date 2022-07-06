@@ -1,5 +1,6 @@
 package com.aprendiendo.springboot.app.controller;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -33,6 +34,9 @@ public class ClienteController {
 
     @Autowired
     private IClienteService clienteService;
+    private final Logger log = LoggerFactory.getLogger(getClass());
+
+    private final static String UPLOADS_FOLDER = "//home//diebo//uploads//";
 
     @RequestMapping(value = "/listar", method = RequestMethod.GET)
     public String listar(Model model) {
@@ -77,17 +81,24 @@ public class ClienteController {
             return "form";
         }
         if(!foto.isEmpty()){
+            if(cliente.getId() != null
+            && cliente.getId() > 0
+            && cliente.getFoto() != null
+            && cliente.getFoto().length() > 0){
+                Path rootPath = Paths.get(UPLOADS_FOLDER).resolve(cliente.getFoto() + " eliminada con exito!");
+                File archivo = rootPath.toFile();
+
+                if(archivo.exists() && archivo.canRead()){
+                    archivo.delete();
+                }
+            }
 //            Path directorioRecursos = Paths.get("src//main//resources//static/uploads");
 //            String rootPath = directorioRecursos.toFile().getAbsolutePath();
-            String rootPath = "//home//diebo//uploads//";
+            String rootPath = UPLOADS_FOLDER;
             try {
-//                System.out.println("llego hasta aca");
                 byte[] bytes = foto.getBytes();
-//                System.out.println("llego hasta aca 2");
                 Path rutaCompleta = Paths.get( rootPath + foto.getOriginalFilename());
-//                System.out.println(rutaCompleta.toString());
                 Files.write(rutaCompleta, bytes);
-//                System.out.println("llego hasta aca 4");
                 flash.addFlashAttribute("info", "Has subido correctamente'" + foto.getOriginalFilename() + "'");
                 cliente.setFoto(foto.getOriginalFilename());
             } catch (IOException e) {
@@ -106,8 +117,17 @@ public class ClienteController {
     public String eliminar(@PathVariable(value = "id") Long id, RedirectAttributes flash) {
 
         if (id > 0) {
+            Cliente cliente = clienteService.findOne(id);
+
             clienteService.delete(id);
             flash.addFlashAttribute("success", "Cliente eliminado con éxito!");
+
+            Path rootPath = Paths.get(UPLOADS_FOLDER).resolve(cliente.getFoto() + " eliminada con exito!");
+            File archivo = rootPath.toFile();
+
+            if(archivo.exists() && archivo.canRead()){
+                archivo.delete();
+            }
         }
         return "redirect:/listar";
     }
@@ -124,11 +144,9 @@ public class ClienteController {
         return "ver";
     }
 
-    private final Logger log = LoggerFactory.getLogger(getClass());
-
     @GetMapping(value="/home/diebo/uploads/{filename:.+}")
     public ResponseEntity<Resource> verFoto(@PathVariable String filename) {
-        Path pathFoto = Paths.get("//home//diebo//uploads").resolve(filename);
+        Path pathFoto = Paths.get(UPLOADS_FOLDER).resolve(filename);
         log.info("pathFoto: "+pathFoto);
         Resource recurso = null;
         try {
